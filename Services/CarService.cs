@@ -21,6 +21,11 @@ public class CarService(AppDbContext db)
         var carExists = await _db.Cars.AnyAsync(c => c.Id == carId);
         if (!carExists) throw new KeyNotFoundException($"Car {carId} not found");
 
+        //checking the valid date
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (date > today.AddYears(1) || date < new DateOnly(1900, 1, 1))
+            throw new ArgumentException($"Date {date} is not valid");
+
         return await _db.Policies.AnyAsync(p =>
             p.CarId == carId &&
             p.StartDate <= date &&

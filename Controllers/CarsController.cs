@@ -17,17 +17,26 @@ public class CarsController(CarService service) : ControllerBase
     [HttpGet("cars/{carId:long}/insurance-valid")]
     public async Task<ActionResult<InsuranceValidityResponse>> IsInsuranceValid(long carId, [FromQuery] string date)
     {
-        if (!DateOnly.TryParse(date, out var parsed))
+        if (!DateOnly.TryParse(date, out var parsedDate))
             return BadRequest("Invalid date format. Use YYYY-MM-DD.");
+
+        //checking the interval for date 
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (parsedDate > today.AddYears(1) || parsedDate < new DateOnly(1900, 1, 1))
+            return BadRequest($"Date must be between 1900-01-01 and {today.AddYears(1):yyyy-MM-dd}");
 
         try
         {
-            var valid = await _service.IsInsuranceValidAsync(carId, parsed);
-            return Ok(new InsuranceValidityResponse(carId, parsed.ToString("yyyy-MM-dd"), valid));
+            var valid = await _service.IsInsuranceValidAsync(carId, parsedDate);
+            return Ok(new InsuranceValidityResponse(carId, parsedDate.ToString("yyyy-MM-dd"), valid));
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
-            return NotFound();
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 }
