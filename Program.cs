@@ -11,6 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 builder.Services.AddScoped<CarService>();
 builder.Services.AddScoped<ClaimService>();
+builder.Services.AddHostedService<PolicyExpirationLoggerService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
