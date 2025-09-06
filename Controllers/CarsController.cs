@@ -27,7 +27,7 @@ public class CarsController(CarService service) : ControllerBase
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return NotFound(new {message = $"Car {carId} not found"});
         }
     }
 }
