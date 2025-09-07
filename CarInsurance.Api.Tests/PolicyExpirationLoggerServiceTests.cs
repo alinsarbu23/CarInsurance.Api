@@ -18,12 +18,10 @@ public class PolicyExpirationLoggerServiceTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        // Creează ServiceCollection pentru DI
         var services = new ServiceCollection();
         services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase(Guid.NewGuid().ToString()));
         var provider = services.BuildServiceProvider();
 
-        // Seed policy expirată
         using (var scope = provider.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -41,7 +39,7 @@ public class PolicyExpirationLoggerServiceTests
         var service = new PolicyExpirationLoggerService(provider.GetRequiredService<IServiceScopeFactory>(), mockLogger.Object);
 
         using var cts = new CancellationTokenSource();
-        cts.CancelAfter(200); // stop după 200ms
+        cts.CancelAfter(200);
 
         await service.StartAsync(cts.Token);
 
